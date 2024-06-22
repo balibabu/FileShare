@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Share</title>
+    <script>
+        function clickHandler(file) {
+            if (confirm(`Do you want to download ${file}?`)) {
+                window.location.href = `/download/${file}`;
+            }
+        }
+
+        function uploadFileHandler() {
+            var form = document.getElementById('uploadForm');
+            var formData = new FormData(form);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.upload.onprogress = function(event) {
+                var percent = (event.loaded / event.total) * 100;
+                document.getElementById('progressBar').style.width = percent + '%';
+                document.getElementById('progressBar').innerText = percent.toFixed(0) + '%';
+            };
+
+            xhr.onload = function() {
+                if (xhr.status == 200) {
+                    window.location.reload();
+                } else {
+                    alert('Error uploading file. Please try again.');
+                }
+            };
+
+            xhr.open('POST', '/upload');
+            xhr.send(formData);
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Files</h1>
+    <ol>
+        {% for file in files %}
+        <li style="font-size: large; padding: 3px;" onclick="clickHandler('{{ file }}')">{{ file }}</li>
+        {% endfor %}
+    </ol>
+
+    <h2>Upload a File</h2>
+    <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="button" value="Upload" onclick="uploadFileHandler()">
+    </form>
+    <div id="progressBarContainer" style="margin-top: 10px; width: 300px; border: 1px solid #ccc;">
+        <div id="progressBar" style="width: 0%; height: 30px; background-color: #4CAF50; text-align: center; line-height: 30px; color: white;">0%</div>
+    </div>
+</body>
+
+</html>
