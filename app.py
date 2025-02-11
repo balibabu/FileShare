@@ -20,10 +20,15 @@ else:
         DIRECTORY = os.path.join(os.path.expanduser("~"), "Desktop")
     else:
         DIRECTORY=upath
-        
-ipv4_address = socket.gethostbyname(socket.gethostname())
-url = f'http://{ipv4_address}:{PORT}'
 
+
+def get_local_ip():
+    hostname = socket.gethostname()
+    ip_addresses = socket.gethostbyname_ex(hostname)[2]
+    for ip in ip_addresses:
+        if ip.startswith("192."):
+            return ip
+    return "127.0.0.1"
 
 @app.route("/")
 def get_files():
@@ -56,5 +61,7 @@ def show_qr_terminal(value):
         print()
 
 if __name__ == '__main__':
+    ipv4_address = get_local_ip()
+    url = f'http://{ipv4_address}:{PORT}'
     show_qr_terminal(url)
     app.run(host='0.0.0.0', port=PORT)
